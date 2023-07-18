@@ -2,7 +2,6 @@
 // The compiler used schema file demo.colf.
 
 /**
- * Package demo offers a demonstration.
  * These comment lines will end up in the generated code.
  */
-package demo;
+package io.github.kitswas.VGP_Data_Exchange;
