@@ -3,7 +3,7 @@
 ## To generate C code from .colf files
 
 ```bash
-colf C -b C
+colf -b C C
 ```
 
 ## To generate Java code from a .colf file
