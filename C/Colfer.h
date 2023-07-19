@@ -39,16 +39,16 @@ typedef struct {
 
 typedef struct vgp_data_exchange_gamepad_reading vgp_data_exchange_gamepad_reading;
 
-typedef struct vgp_data_exchange_gamepad_buttons vgp_data_exchange_gamepad_buttons;
-
 typedef struct vgp_data_exchange_message vgp_data_exchange_message;
 
 
-// Should be the same as the GamepadReading struct in the Windows API.
+// Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
 struct vgp_data_exchange_gamepad_reading {
 
-	vgp_data_exchange_gamepad_buttons* buttons;
+	uint32_t buttons_up;
+
+	uint32_t buttons_down;
 
 	float left_trigger;
 
@@ -79,60 +79,6 @@ size_t vgp_data_exchange_gamepad_reading_marshal(const vgp_data_exchange_gamepad
 // EWOULDBLOCK on incomplete data, EFBIG on a breach of either colfer_size_max
 // or colfer_list_max and EILSEQ on schema mismatch.
 size_t vgp_data_exchange_gamepad_reading_unmarshal(vgp_data_exchange_gamepad_reading* o, const void* data, size_t datalen);
-
-// Should be the same as the GamepadButtons enum in the Windows API.
-// https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadbuttons
-// Taken from windows.gaming.input.h
-// Slighly modified as Colfer does not support bitfields and enums yet.
-struct vgp_data_exchange_gamepad_buttons {
-
-	char gamepad_buttons_none;
-
-	char gamepad_buttons_menu;
-
-	char gamepad_buttons_view;
-
-	char gamepad_buttons_a;
-
-	char gamepad_buttons_b;
-
-	char gamepad_buttons_x;
-
-	char gamepad_buttons_y;
-
-	char gamepad_buttons_d_pad_up;
-
-	char gamepad_buttons_d_pad_down;
-
-	char gamepad_buttons_d_pad_left;
-
-	char gamepad_buttons_d_pad_right;
-
-	char gamepad_buttons_left_shoulder;
-
-	char gamepad_buttons_right_shoulder;
-
-	char gamepad_buttons_left_thumbstick;
-
-	char gamepad_buttons_right_thumbstick;
-};
-
-// vgp_data_exchange_gamepad_buttons_marshal_len returns the Colfer serial octet size.
-// When the return is zero then errno is set to EFBIG to indicate a breach of
-// either colfer_size_max or colfer_list_max.
-size_t vgp_data_exchange_gamepad_buttons_marshal_len(const vgp_data_exchange_gamepad_buttons* o);
-
-// vgp_data_exchange_gamepad_buttons_marshal encodes o as Colfer into buf and returns the number
-// of octets written.
-size_t vgp_data_exchange_gamepad_buttons_marshal(const vgp_data_exchange_gamepad_buttons* o, void* buf);
-
-// vgp_data_exchange_gamepad_buttons_unmarshal decodes data as Colfer into o and returns the
-// number of octets read. The data is read up to a maximum of datalen or
-// colfer_size_max, whichever occurs first.
-// When the return is zero then errno is set to one of the following 3 values:
-// EWOULDBLOCK on incomplete data, EFBIG on a breach of either colfer_size_max
-// or colfer_list_max and EILSEQ on schema mismatch.
-size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_buttons* o, const void* data, size_t datalen);
 
 // A message and its contents. :)
 struct vgp_data_exchange_message {
