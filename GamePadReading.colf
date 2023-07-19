@@ -3,7 +3,7 @@ package VGP_Data_Exchange
 // Should be the same as the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
 type GamepadReading struct {
-	Buttons GamepadButtons
+	Buttons []GamepadButtons
 	LeftTrigger float32
 	RightTrigger float32
 	LeftThumbstickX float32
@@ -15,20 +15,21 @@ type GamepadReading struct {
 // Should be the same as the GamepadButtons enum in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadbuttons
 // Taken from windows.gaming.input.h
-type GamepadButtons uint32 {
-	GamepadButtons_None = 0x0,
-	GamepadButtons_Menu = 0x1,
-	GamepadButtons_View = 0x2,
-	GamepadButtons_A = 0x4,
-	GamepadButtons_B = 0x8,
-	GamepadButtons_X = 0x10,
-	GamepadButtons_Y = 0x20,
-	GamepadButtons_DPadUp = 0x40,
-	GamepadButtons_DPadDown = 0x80,
-	GamepadButtons_DPadLeft = 0x100,
-	GamepadButtons_DPadRight = 0x200,
-	GamepadButtons_LeftShoulder = 0x400,
-	GamepadButtons_RightShoulder = 0x800,
-	GamepadButtons_LeftThumbstick = 0x1000,
-	GamepadButtons_RightThumbstick = 0x2000,
+// Slighly modified as Colfer does not support bitfields and enums yet.
+type GamepadButtons struct {
+	// GamepadButtons_None bool // We don't need this as we can just check the length of the array.
+	GamepadButtons_Menu bool
+	GamepadButtons_View bool
+	GamepadButtons_A bool
+	GamepadButtons_B bool
+	GamepadButtons_X bool
+	GamepadButtons_Y bool
+	GamepadButtons_DPadUp bool
+	GamepadButtons_DPadDown bool
+	GamepadButtons_DPadLeft bool
+	GamepadButtons_DPadRight bool
+	GamepadButtons_LeftShoulder bool
+	GamepadButtons_RightShoulder bool
+	GamepadButtons_LeftThumbstick bool
+	GamepadButtons_RightThumbstick bool
 }
