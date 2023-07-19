@@ -24,20 +24,7 @@ size_t vgp_data_exchange_gamepad_reading_marshal_len(const vgp_data_exchange_gam
 	size_t l = 1;
 
 	{
-		size_t n = o->buttons.len;
-		if (n) {
-			if (n > colfer_list_max) {
-				errno = EFBIG;
-				return 0;
-			}
-			vgp_data_exchange_gamepad_buttons* a = o->buttons.list;
-			for (size_t i = 0; i < n; ++i) l += vgp_data_exchange_gamepad_buttons_marshal_len(&a[i]);
-			for (l += 2; n > 127; n >>= 7, ++l);
-			if (l > colfer_size_max) {
-				errno = EFBIG;
-				return 0;
-			}
-		}
+		if (o->buttons) l += 1 + vgp_data_exchange_gamepad_buttons_marshal_len(o->buttons);
 	}
 
 	if (o->left_trigger != 0.0f) l += 5;
@@ -64,16 +51,10 @@ size_t vgp_data_exchange_gamepad_reading_marshal(const vgp_data_exchange_gamepad
 	uint8_t* p = buf;
 
 	{
-		size_t n = o->buttons.len;
-		if (n) {
+		if (o->buttons) {
 			*p++ = 0;
 
-			uint_fast32_t x = n;
-			for (; x >= 128; x >>= 7) *p++ = x | 128;
-			*p++ = x;
-
-			vgp_data_exchange_gamepad_buttons* a = o->buttons.list;
-			for (size_t i = 0; i < n; ++i) p += vgp_data_exchange_gamepad_buttons_marshal(&a[i], p);
+			p += vgp_data_exchange_gamepad_buttons_marshal(o->buttons, p);
 		}
 	}
 
@@ -198,42 +179,13 @@ size_t vgp_data_exchange_gamepad_reading_unmarshal(vgp_data_exchange_gamepad_rea
 	uint_fast8_t header = *p++;
 
 	if (header == 0) {
-		if (p >= end) {
-			errno = enderr;
-			return 0;
+		o->buttons = calloc(1, sizeof(vgp_data_exchange_gamepad_buttons));
+		size_t read = vgp_data_exchange_gamepad_buttons_unmarshal(o->buttons, p, (size_t) (end - p));
+		if (!read) {
+			if (errno == EWOULDBLOCK) errno = enderr;
+			return read;
 		}
-		size_t n = *p++;
-		if (n > 127) {
-			n &= 127;
-			for (int shift = 7; ; shift += 7) {
-				if (p >= end) {
-					errno = enderr;
-					return 0;
-				}
-				size_t c = *p++;
-				if (c <= 127) {
-					n |= c << shift;
-					break;
-				}
-				n |= (c & 127) << shift;
-			}
-		}
-		if (n > colfer_list_max) {
-			errno = EFBIG;
-			return 0;
-		}
-
-		vgp_data_exchange_gamepad_buttons* a = calloc(n, sizeof(vgp_data_exchange_gamepad_buttons));
-		for (size_t i = 0; i < n; ++i) {
-			size_t read = vgp_data_exchange_gamepad_buttons_unmarshal(&a[i], p, (size_t) (end - p));
-			if (!read) {
-				if (errno == EWOULDBLOCK) errno = enderr;
-				return read;
-			}
-			p += read;
-		}
-		o->buttons.len = n;
-		o->buttons.list = a;
+		p += read;
 
 		if (p >= end) {
 			errno = enderr;
@@ -367,6 +319,8 @@ size_t vgp_data_exchange_gamepad_reading_unmarshal(vgp_data_exchange_gamepad_rea
 size_t vgp_data_exchange_gamepad_buttons_marshal_len(const vgp_data_exchange_gamepad_buttons* o) {
 	size_t l = 1;
 
+	if (o->gamepad_buttons_none) l++;
+
 	if (o->gamepad_buttons_menu) l++;
 
 	if (o->gamepad_buttons_view) l++;
@@ -406,33 +360,35 @@ size_t vgp_data_exchange_gamepad_buttons_marshal(const vgp_data_exchange_gamepad
 	// octet pointer navigation
 	uint8_t* p = buf;
 
-	if (o->gamepad_buttons_menu) *p++ = 0;
+	if (o->gamepad_buttons_none) *p++ = 0;
 
-	if (o->gamepad_buttons_view) *p++ = 1;
+	if (o->gamepad_buttons_menu) *p++ = 1;
 
-	if (o->gamepad_buttons_a) *p++ = 2;
+	if (o->gamepad_buttons_view) *p++ = 2;
 
-	if (o->gamepad_buttons_b) *p++ = 3;
+	if (o->gamepad_buttons_a) *p++ = 3;
 
-	if (o->gamepad_buttons_x) *p++ = 4;
+	if (o->gamepad_buttons_b) *p++ = 4;
 
-	if (o->gamepad_buttons_y) *p++ = 5;
+	if (o->gamepad_buttons_x) *p++ = 5;
 
-	if (o->gamepad_buttons_d_pad_up) *p++ = 6;
+	if (o->gamepad_buttons_y) *p++ = 6;
 
-	if (o->gamepad_buttons_d_pad_down) *p++ = 7;
+	if (o->gamepad_buttons_d_pad_up) *p++ = 7;
 
-	if (o->gamepad_buttons_d_pad_left) *p++ = 8;
+	if (o->gamepad_buttons_d_pad_down) *p++ = 8;
 
-	if (o->gamepad_buttons_d_pad_right) *p++ = 9;
+	if (o->gamepad_buttons_d_pad_left) *p++ = 9;
 
-	if (o->gamepad_buttons_left_shoulder) *p++ = 10;
+	if (o->gamepad_buttons_d_pad_right) *p++ = 10;
 
-	if (o->gamepad_buttons_right_shoulder) *p++ = 11;
+	if (o->gamepad_buttons_left_shoulder) *p++ = 11;
 
-	if (o->gamepad_buttons_left_thumbstick) *p++ = 12;
+	if (o->gamepad_buttons_right_shoulder) *p++ = 12;
 
-	if (o->gamepad_buttons_right_thumbstick) *p++ = 13;
+	if (o->gamepad_buttons_left_thumbstick) *p++ = 13;
+
+	if (o->gamepad_buttons_right_thumbstick) *p++ = 14;
 
 	*p++ = 127;
 
@@ -459,7 +415,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	uint_fast8_t header = *p++;
 
 	if (header == 0) {
-		o->gamepad_buttons_menu = 1;
+		o->gamepad_buttons_none = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -468,7 +424,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 1) {
-		o->gamepad_buttons_view = 1;
+		o->gamepad_buttons_menu = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -477,7 +433,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 2) {
-		o->gamepad_buttons_a = 1;
+		o->gamepad_buttons_view = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -486,7 +442,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 3) {
-		o->gamepad_buttons_b = 1;
+		o->gamepad_buttons_a = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -495,7 +451,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 4) {
-		o->gamepad_buttons_x = 1;
+		o->gamepad_buttons_b = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -504,7 +460,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 5) {
-		o->gamepad_buttons_y = 1;
+		o->gamepad_buttons_x = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -513,7 +469,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 6) {
-		o->gamepad_buttons_d_pad_up = 1;
+		o->gamepad_buttons_y = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -522,7 +478,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 7) {
-		o->gamepad_buttons_d_pad_down = 1;
+		o->gamepad_buttons_d_pad_up = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -531,7 +487,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 8) {
-		o->gamepad_buttons_d_pad_left = 1;
+		o->gamepad_buttons_d_pad_down = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -540,7 +496,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 9) {
-		o->gamepad_buttons_d_pad_right = 1;
+		o->gamepad_buttons_d_pad_left = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -549,7 +505,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 10) {
-		o->gamepad_buttons_left_shoulder = 1;
+		o->gamepad_buttons_d_pad_right = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -558,7 +514,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 11) {
-		o->gamepad_buttons_right_shoulder = 1;
+		o->gamepad_buttons_left_shoulder = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -567,7 +523,7 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 12) {
-		o->gamepad_buttons_left_thumbstick = 1;
+		o->gamepad_buttons_right_shoulder = 1;
 		if (p >= end) {
 			errno = enderr;
 			return 0;
@@ -576,6 +532,15 @@ size_t vgp_data_exchange_gamepad_buttons_unmarshal(vgp_data_exchange_gamepad_but
 	}
 
 	if (header == 13) {
+		o->gamepad_buttons_left_thumbstick = 1;
+		if (p >= end) {
+			errno = enderr;
+			return 0;
+		}
+		header = *p++;
+	}
+
+	if (header == 14) {
 		o->gamepad_buttons_right_thumbstick = 1;
 		if (p >= end) {
 			errno = enderr;

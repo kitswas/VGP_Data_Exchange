@@ -48,10 +48,7 @@ typedef struct vgp_data_exchange_message vgp_data_exchange_message;
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
 struct vgp_data_exchange_gamepad_reading {
 
-	struct {
-		struct vgp_data_exchange_gamepad_buttons* list;
-		size_t len;
-	} buttons;
+	vgp_data_exchange_gamepad_buttons* buttons;
 
 	float left_trigger;
 
@@ -88,7 +85,9 @@ size_t vgp_data_exchange_gamepad_reading_unmarshal(vgp_data_exchange_gamepad_rea
 // Taken from windows.gaming.input.h
 // Slighly modified as Colfer does not support bitfields and enums yet.
 struct vgp_data_exchange_gamepad_buttons {
-	// GamepadButtons_None bool // We don't need this as we can just check the length of the array.
+
+	char gamepad_buttons_none;
+
 	char gamepad_buttons_menu;
 
 	char gamepad_buttons_view;

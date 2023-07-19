@@ -33,9 +33,8 @@ public class GamepadButtons implements Serializable {
 	public static int colferSizeMax = 16 * 1024 * 1024;
 
 
-	/**
-	 * GamepadButtons_None bool // We don't need this as we can just check the length of the array.
-	 */
+	public boolean GamepadButtons_None;
+
 	public boolean GamepadButtons_Menu;
 
 	public boolean GamepadButtons_View;
@@ -167,7 +166,7 @@ public class GamepadButtons implements Serializable {
 	 * @return the number of bytes.
 	 */
 	public int marshalFit() {
-		long n = 1L + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+		long n = 1L + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
 		if (n < 0 || n > (long)GamepadButtons.colferSizeMax) return GamepadButtons.colferSizeMax;
 		return (int) n;
 	}
@@ -206,60 +205,64 @@ public class GamepadButtons implements Serializable {
 		int i = offset;
 
 		try {
-			if (this.GamepadButtons_Menu) {
+			if (this.GamepadButtons_None) {
 				buf[i++] = (byte) 0;
 			}
 
-			if (this.GamepadButtons_View) {
+			if (this.GamepadButtons_Menu) {
 				buf[i++] = (byte) 1;
 			}
 
-			if (this.GamepadButtons_A) {
+			if (this.GamepadButtons_View) {
 				buf[i++] = (byte) 2;
 			}
 
-			if (this.GamepadButtons_B) {
+			if (this.GamepadButtons_A) {
 				buf[i++] = (byte) 3;
 			}
 
-			if (this.GamepadButtons_X) {
+			if (this.GamepadButtons_B) {
 				buf[i++] = (byte) 4;
 			}
 
-			if (this.GamepadButtons_Y) {
+			if (this.GamepadButtons_X) {
 				buf[i++] = (byte) 5;
 			}
 
-			if (this.GamepadButtons_DPadUp) {
+			if (this.GamepadButtons_Y) {
 				buf[i++] = (byte) 6;
 			}
 
-			if (this.GamepadButtons_DPadDown) {
+			if (this.GamepadButtons_DPadUp) {
 				buf[i++] = (byte) 7;
 			}
 
-			if (this.GamepadButtons_DPadLeft) {
+			if (this.GamepadButtons_DPadDown) {
 				buf[i++] = (byte) 8;
 			}
 
-			if (this.GamepadButtons_DPadRight) {
+			if (this.GamepadButtons_DPadLeft) {
 				buf[i++] = (byte) 9;
 			}
 
-			if (this.GamepadButtons_LeftShoulder) {
+			if (this.GamepadButtons_DPadRight) {
 				buf[i++] = (byte) 10;
 			}
 
-			if (this.GamepadButtons_RightShoulder) {
+			if (this.GamepadButtons_LeftShoulder) {
 				buf[i++] = (byte) 11;
 			}
 
-			if (this.GamepadButtons_LeftThumbstick) {
+			if (this.GamepadButtons_RightShoulder) {
 				buf[i++] = (byte) 12;
 			}
 
-			if (this.GamepadButtons_RightThumbstick) {
+			if (this.GamepadButtons_LeftThumbstick) {
 				buf[i++] = (byte) 13;
+			}
+
+			if (this.GamepadButtons_RightThumbstick) {
+				buf[i++] = (byte) 14;
 			}
 
 			buf[i++] = (byte) 0x7f;
@@ -303,71 +306,76 @@ public class GamepadButtons implements Serializable {
 			byte header = buf[i++];
 
 			if (header == (byte) 0) {
-				this.GamepadButtons_Menu = true;
+				this.GamepadButtons_None = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 1) {
-				this.GamepadButtons_View = true;
+				this.GamepadButtons_Menu = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 2) {
-				this.GamepadButtons_A = true;
+				this.GamepadButtons_View = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 3) {
-				this.GamepadButtons_B = true;
+				this.GamepadButtons_A = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 4) {
-				this.GamepadButtons_X = true;
+				this.GamepadButtons_B = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 5) {
-				this.GamepadButtons_Y = true;
+				this.GamepadButtons_X = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 6) {
-				this.GamepadButtons_DPadUp = true;
+				this.GamepadButtons_Y = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 7) {
-				this.GamepadButtons_DPadDown = true;
+				this.GamepadButtons_DPadUp = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 8) {
-				this.GamepadButtons_DPadLeft = true;
+				this.GamepadButtons_DPadDown = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 9) {
-				this.GamepadButtons_DPadRight = true;
+				this.GamepadButtons_DPadLeft = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 10) {
-				this.GamepadButtons_LeftShoulder = true;
+				this.GamepadButtons_DPadRight = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 11) {
-				this.GamepadButtons_RightShoulder = true;
+				this.GamepadButtons_LeftShoulder = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 12) {
-				this.GamepadButtons_LeftThumbstick = true;
+				this.GamepadButtons_RightShoulder = true;
 				header = buf[i++];
 			}
 
 			if (header == (byte) 13) {
+				this.GamepadButtons_LeftThumbstick = true;
+				header = buf[i++];
+			}
+
+			if (header == (byte) 14) {
 				this.GamepadButtons_RightThumbstick = true;
 				header = buf[i++];
 			}
@@ -385,7 +393,7 @@ public class GamepadButtons implements Serializable {
 	}
 
 	// {@link Serializable} version number.
-	private static final long serialVersionUID = 14L;
+	private static final long serialVersionUID = 15L;
 
 	// {@link Serializable} Colfer extension.
 	private void writeObject(ObjectOutputStream out) throws IOException {
@@ -408,6 +416,32 @@ public class GamepadButtons implements Serializable {
 	// {@link Serializable} Colfer extension.
 	private void readObjectNoData() throws ObjectStreamException {
 		init();
+	}
+
+	/**
+	 * Gets io.github.kitswas/VGP_Data_Exchange.GamepadButtons.GamepadButtons_None.
+	 * @return the value.
+	 */
+	public boolean getGamepadButtons_None() {
+		return this.GamepadButtons_None;
+	}
+
+	/**
+	 * Sets io.github.kitswas/VGP_Data_Exchange.GamepadButtons.GamepadButtons_None.
+	 * @param value the replacement.
+	 */
+	public void setGamepadButtons_None(boolean value) {
+		this.GamepadButtons_None = value;
+	}
+
+	/**
+	 * Sets io.github.kitswas/VGP_Data_Exchange.GamepadButtons.GamepadButtons_None.
+	 * @param value the replacement.
+	 * @return {@code this}.
+	 */
+	public GamepadButtons withGamepadButtons_None(boolean value) {
+		this.GamepadButtons_None = value;
+		return this;
 	}
 
 	/**
@@ -777,6 +811,7 @@ public class GamepadButtons implements Serializable {
 	@Override
 	public final int hashCode() {
 		int h = 1;
+		h = 31 * h + (this.GamepadButtons_None ? 1231 : 1237);
 		h = 31 * h + (this.GamepadButtons_Menu ? 1231 : 1237);
 		h = 31 * h + (this.GamepadButtons_View ? 1231 : 1237);
 		h = 31 * h + (this.GamepadButtons_A ? 1231 : 1237);
@@ -803,7 +838,8 @@ public class GamepadButtons implements Serializable {
 		if (o == null) return false;
 		if (o == this) return true;
 
-		return this.GamepadButtons_Menu == o.GamepadButtons_Menu
+		return this.GamepadButtons_None == o.GamepadButtons_None
+			&& this.GamepadButtons_Menu == o.GamepadButtons_Menu
 			&& this.GamepadButtons_View == o.GamepadButtons_View
 			&& this.GamepadButtons_A == o.GamepadButtons_A
 			&& this.GamepadButtons_B == o.GamepadButtons_B

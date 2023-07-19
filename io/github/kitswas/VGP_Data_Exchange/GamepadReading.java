@@ -30,11 +30,8 @@ public class GamepadReading implements Serializable {
 	/** The upper limit for serial byte sizes. */
 	public static int colferSizeMax = 16 * 1024 * 1024;
 
-	/** The upper limit for the number of elements in a list. */
-	public static int colferListMax = 64 * 1024;
 
-
-	public GamepadButtons[] Buttons;
+	public GamepadButtons Buttons;
 
 	public float LeftTrigger;
 
@@ -53,11 +50,9 @@ public class GamepadReading implements Serializable {
 		init();
 	}
 
-	private static final GamepadButtons[] _zeroButtons = new GamepadButtons[0];
 
 	/** Colfer zero values. */
 	private void init() {
-		Buttons = _zeroButtons;
 	}
 
 	/**
@@ -105,7 +100,7 @@ public class GamepadReading implements Serializable {
 		 * Deserializes the following object.
 		 * @return the result or {@code null} when EOF.
 		 * @throws IOException from the input stream.
-		 * @throws SecurityException on an upper limit breach defined by either {@link #colferSizeMax} or {@link #colferListMax}.
+		 * @throws SecurityException on an upper limit breach defined by {@link #colferSizeMax}.
 		 * @throws InputMismatchException when the data does not match this object's schema.
 		 */
 		public GamepadReading next() throws IOException {
@@ -153,24 +148,20 @@ public class GamepadReading implements Serializable {
 	 * @return the number of bytes.
 	 */
 	public int marshalFit() {
-		long n = 1L + 6 + 5 + 5 + 5 + 5 + 5 + 5;
-		for (GamepadButtons o : this.Buttons) {
-			if (o == null) n++;
-			else n += o.marshalFit();
-		}
+		long n = 1L + 5 + 5 + 5 + 5 + 5 + 5;
+		if (this.Buttons != null) n += 1 + (long)this.Buttons.marshalFit();
 		if (n < 0 || n > (long)GamepadReading.colferSizeMax) return GamepadReading.colferSizeMax;
 		return (int) n;
 	}
 
 	/**
 	 * Serializes the object.
-	 * All {@code null} elements in {@link #Buttons} will be replaced with a {@code new} value.
 	 * @param out the data destination.
 	 * @param buf the initial buffer or {@code null}.
 	 * @return the final buffer. When the serial fits into {@code buf} then the return is {@code buf}.
 	 *  Otherwise the return is a new buffer, large enough to hold the whole serial.
 	 * @throws IOException from {@code out}.
-	 * @throws IllegalStateException on an upper limit breach defined by either {@link #colferSizeMax} or {@link #colferListMax}.
+	 * @throws IllegalStateException on an upper limit breach defined by {@link #colferSizeMax}.
 	 */
 	public byte[] marshal(OutputStream out, byte[] buf) throws IOException {
 		int n = 0;
@@ -187,38 +178,19 @@ public class GamepadReading implements Serializable {
 
 	/**
 	 * Serializes the object.
-	 * All {@code null} elements in {@link #Buttons} will be replaced with a {@code new} value.
 	 * @param buf the data destination.
 	 * @param offset the initial index for {@code buf}, inclusive.
 	 * @return the final index for {@code buf}, exclusive.
 	 * @throws BufferOverflowException when {@code buf} is too small.
-	 * @throws IllegalStateException on an upper limit breach defined by either {@link #colferSizeMax} or {@link #colferListMax}.
+	 * @throws IllegalStateException on an upper limit breach defined by {@link #colferSizeMax}.
 	 */
 	public int marshal(byte[] buf, int offset) {
 		int i = offset;
 
 		try {
-			if (this.Buttons.length != 0) {
+			if (this.Buttons != null) {
 				buf[i++] = (byte) 0;
-				GamepadButtons[] a = this.Buttons;
-
-				int x = a.length;
-				if (x > GamepadReading.colferListMax)
-					throw new IllegalStateException(format("colfer: io.github.kitswas/VGP_Data_Exchange.GamepadReading.Buttons length %d exceeds %d elements", x, GamepadReading.colferListMax));
-				while (x > 0x7f) {
-					buf[i++] = (byte) (x | 0x80);
-					x >>>= 7;
-				}
-				buf[i++] = (byte) x;
-
-				for (int ai = 0; ai < a.length; ai++) {
-					GamepadButtons o = a[ai];
-					if (o == null) {
-						o = new GamepadButtons();
-						a[ai] = o;
-					}
-					i = o.marshal(buf, i);
-				}
+				i = this.Buttons.marshal(buf, i);
 			}
 
 			if (this.LeftTrigger != 0.0f) {
@@ -291,7 +263,7 @@ public class GamepadReading implements Serializable {
 	 * @param offset the initial index for {@code buf}, inclusive.
 	 * @return the final index for {@code buf}, exclusive.
 	 * @throws BufferUnderflowException when {@code buf} is incomplete. (EOF)
-	 * @throws SecurityException on an upper limit breach defined by either {@link #colferSizeMax} or {@link #colferListMax}.
+	 * @throws SecurityException on an upper limit breach defined by {@link #colferSizeMax}.
 	 * @throws InputMismatchException when the data does not match this object's schema.
 	 */
 	public int unmarshal(byte[] buf, int offset) {
@@ -305,7 +277,7 @@ public class GamepadReading implements Serializable {
 	 * @param end the index limit for {@code buf}, exclusive.
 	 * @return the final index for {@code buf}, exclusive.
 	 * @throws BufferUnderflowException when {@code buf} is incomplete. (EOF)
-	 * @throws SecurityException on an upper limit breach defined by either {@link #colferSizeMax} or {@link #colferListMax}.
+	 * @throws SecurityException on an upper limit breach defined by {@link #colferSizeMax}.
 	 * @throws InputMismatchException when the data does not match this object's schema.
 	 */
 	public int unmarshal(byte[] buf, int offset, int end) {
@@ -316,22 +288,8 @@ public class GamepadReading implements Serializable {
 			byte header = buf[i++];
 
 			if (header == (byte) 0) {
-				int length = 0;
-				for (int shift = 0; true; shift += 7) {
-					byte b = buf[i++];
-					length |= (b & 0x7f) << shift;
-					if (shift == 28 || b >= 0) break;
-				}
-				if (length < 0 || length > GamepadReading.colferListMax)
-					throw new SecurityException(format("colfer: io.github.kitswas/VGP_Data_Exchange.GamepadReading.Buttons length %d exceeds %d elements", length, GamepadReading.colferListMax));
-
-				GamepadButtons[] a = new GamepadButtons[length];
-				for (int ai = 0; ai < length; ai++) {
-					GamepadButtons o = new GamepadButtons();
-					i = o.unmarshal(buf, i, end);
-					a[ai] = o;
-				}
-				this.Buttons = a;
+				this.Buttons = new GamepadButtons();
+				i = this.Buttons.unmarshal(buf, i, end);
 				header = buf[i++];
 			}
 
@@ -413,7 +371,7 @@ public class GamepadReading implements Serializable {
 	 * Gets io.github.kitswas/VGP_Data_Exchange.GamepadReading.Buttons.
 	 * @return the value.
 	 */
-	public GamepadButtons[] getButtons() {
+	public GamepadButtons getButtons() {
 		return this.Buttons;
 	}
 
@@ -421,7 +379,7 @@ public class GamepadReading implements Serializable {
 	 * Sets io.github.kitswas/VGP_Data_Exchange.GamepadReading.Buttons.
 	 * @param value the replacement.
 	 */
-	public void setButtons(GamepadButtons[] value) {
+	public void setButtons(GamepadButtons value) {
 		this.Buttons = value;
 	}
 
@@ -430,7 +388,7 @@ public class GamepadReading implements Serializable {
 	 * @param value the replacement.
 	 * @return {@code this}.
 	 */
-	public GamepadReading withButtons(GamepadButtons[] value) {
+	public GamepadReading withButtons(GamepadButtons value) {
 		this.Buttons = value;
 		return this;
 	}
@@ -594,7 +552,7 @@ public class GamepadReading implements Serializable {
 	@Override
 	public final int hashCode() {
 		int h = 1;
-		for (GamepadButtons o : this.Buttons) h = 31 * h + (o == null ? 0 : o.hashCode());
+		if (this.Buttons != null) h = 31 * h + this.Buttons.hashCode();
 		h = 31 * h + Float.floatToIntBits(this.LeftTrigger);
 		h = 31 * h + Float.floatToIntBits(this.RightTrigger);
 		h = 31 * h + Float.floatToIntBits(this.LeftThumbstickX);
@@ -613,7 +571,7 @@ public class GamepadReading implements Serializable {
 		if (o == null) return false;
 		if (o == this) return true;
 
-		return java.util.Arrays.equals(this.Buttons, o.Buttons)
+		return (this.Buttons == null ? o.Buttons == null : this.Buttons.equals(o.Buttons))
 			&& (this.LeftTrigger == o.LeftTrigger || (this.LeftTrigger != this.LeftTrigger && o.LeftTrigger != o.LeftTrigger))
 			&& (this.RightTrigger == o.RightTrigger || (this.RightTrigger != this.RightTrigger && o.RightTrigger != o.RightTrigger))
 			&& (this.LeftThumbstickX == o.LeftThumbstickX || (this.LeftThumbstickX != this.LeftThumbstickX && o.LeftThumbstickX != o.LeftThumbstickX))

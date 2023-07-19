@@ -3,7 +3,7 @@ package VGP_Data_Exchange
 // Should be the same as the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
 type GamepadReading struct {
-	Buttons []GamepadButtons
+	Buttons GamepadButtons
 	LeftTrigger float32
 	RightTrigger float32
 	LeftThumbstickX float32
@@ -17,7 +17,7 @@ type GamepadReading struct {
 // Taken from windows.gaming.input.h
 // Slighly modified as Colfer does not support bitfields and enums yet.
 type GamepadButtons struct {
-	// GamepadButtons_None bool // We don't need this as we can just check the length of the array.
+	GamepadButtons_None bool // With this we can avoid checking all the buttons.
 	GamepadButtons_Menu bool
 	GamepadButtons_View bool
 	GamepadButtons_A bool
