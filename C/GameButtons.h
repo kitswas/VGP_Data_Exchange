@@ -1,3 +1,4 @@
+#pragma once
 // Should be the same as the GamepadButtons enum in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadbuttons
 // Taken from windows.gaming.input.h
