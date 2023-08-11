@@ -3,7 +3,7 @@ package io.github.kitswas.VGP_Data_Exchange;
 // Should be the same as the GamepadButtons enum in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadbuttons
 // Adapted from windows.gaming.input.h
-enum GameButtons {
+public enum GameButtons {
   None(0x0),
   Menu(0x1),
   View(0x2),
