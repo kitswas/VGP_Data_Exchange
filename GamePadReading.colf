@@ -2,13 +2,18 @@ package VGP_Data_Exchange
 
 // Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
+// The sizes of the fields have been carefully chosen to accommodate the maximum
+// range of values for optimal performance.
+// ButtonsUp and ButtonsDown require capacity to hold max 16383.
+// The triggers and thumbsticks need to values -100 to 100.
+// Colfer does not support int8, so we use uint8. (-100 is represented as 0)
 type GamepadReading struct {
-	ButtonsUp uint32
-	ButtonsDown uint32
-	LeftTrigger float32
-	RightTrigger float32
-	LeftThumbstickX float32
-	LeftThumbstickY float32
-	RightThumbstickX float32
-	RightThumbstickY float32
+	ButtonsUp uint16
+	ButtonsDown uint16
+	LeftTrigger uint8
+	RightTrigger uint8
+	LeftThumbstickX uint8
+	LeftThumbstickY uint8
+	RightThumbstickX uint8
+	RightThumbstickY uint8
 }
