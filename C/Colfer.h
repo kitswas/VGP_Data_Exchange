@@ -44,23 +44,28 @@ typedef struct vgp_data_exchange_message vgp_data_exchange_message;
 
 // Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
+// The sizes of the fields have been carefully chosen to accommodate the maximum
+// range of values for optimal performance.
+// ButtonsUp and ButtonsDown require capacity to hold max 16383.
+// The triggers and thumbsticks need to values -100 to 100.
+// Colfer does not support int8, so we use uint8. (-100 is represented as 0)
 struct vgp_data_exchange_gamepad_reading {
 
-	uint32_t buttons_up;
+	uint16_t buttons_up;
 
-	uint32_t buttons_down;
+	uint16_t buttons_down;
 
-	float left_trigger;
+	uint8_t left_trigger;
 
-	float right_trigger;
+	uint8_t right_trigger;
 
-	float left_thumbstick_x;
+	uint8_t left_thumbstick_x;
 
-	float left_thumbstick_y;
+	uint8_t left_thumbstick_y;
 
-	float right_thumbstick_x;
+	uint8_t right_thumbstick_x;
 
-	float right_thumbstick_y;
+	uint8_t right_thumbstick_y;
 };
 
 // vgp_data_exchange_gamepad_reading_marshal_len returns the Colfer serial octet size.
