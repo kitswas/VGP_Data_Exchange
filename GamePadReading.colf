@@ -2,6 +2,8 @@ package VGP_Data_Exchange
 
 // Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
+// The Thumbstick values are actual circular positions in the range -1.0 to 1.0
+// It means 0.7, 0.7 is a corner, while 1.0, 1.0 is invalid.
 type GamepadReading struct {
 	ButtonsUp uint32
 	ButtonsDown uint32
