@@ -44,8 +44,13 @@ typedef struct vgp_data_exchange_message vgp_data_exchange_message;
 
 // Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
+
 // The Thumbstick values are actual circular positions in the range -1.0 to 1.0
 // It means 0.7, 0.7 is a corner, while 1.0, 1.0 is invalid.
+
+// Pitch and Roll are inspired from
+// https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.flightstickreading and
+// https://developer.android.com/reference/android/hardware/SensorManager#getOrientation(float[],%20float[])
 struct vgp_data_exchange_gamepad_reading {
 
 	uint32_t buttons_up;
@@ -63,6 +68,10 @@ struct vgp_data_exchange_gamepad_reading {
 	float right_thumbstick_x;
 
 	float right_thumbstick_y;
+	// value is in Radian range [-PI/2,PI/2]
+	float pitch;
+	// value is in Radian range [-PI,PI]
+	float roll;
 };
 
 // vgp_data_exchange_gamepad_reading_marshal_len returns the Colfer serial octet size.
