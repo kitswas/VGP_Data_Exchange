@@ -51,6 +51,10 @@ size_t vgp_data_exchange_gamepad_reading_marshal_len(const vgp_data_exchange_gam
 
 	if (o->right_thumbstick_y != 0.0f) l += 5;
 
+	if (o->pitch != 0.0f) l += 5;
+
+	if (o->roll != 0.0f) l += 5;
+
 	if (l > colfer_size_max) {
 		errno = EFBIG;
 		return 0;
@@ -195,6 +199,38 @@ size_t vgp_data_exchange_gamepad_reading_marshal(const vgp_data_exchange_gamepad
 #else
 		uint_fast32_t x;
 		memcpy(&x, &o->right_thumbstick_y, 4);
+		*p++ = x >> 24;
+		*p++ = x >> 16;
+		*p++ = x >> 8;
+		*p++ = x;
+#endif
+	}
+
+	if (o->pitch != 0.0f) {
+		*p++ = 8;
+
+#ifdef COLFER_ENDIAN
+		memcpy(p, &o->pitch, 4);
+		p += 4;
+#else
+		uint_fast32_t x;
+		memcpy(&x, &o->pitch, 4);
+		*p++ = x >> 24;
+		*p++ = x >> 16;
+		*p++ = x >> 8;
+		*p++ = x;
+#endif
+	}
+
+	if (o->roll != 0.0f) {
+		*p++ = 9;
+
+#ifdef COLFER_ENDIAN
+		memcpy(p, &o->roll, 4);
+		p += 4;
+#else
+		uint_fast32_t x;
+		memcpy(&x, &o->roll, 4);
 		*p++ = x >> 24;
 		*p++ = x >> 16;
 		*p++ = x >> 8;
@@ -410,6 +446,44 @@ size_t vgp_data_exchange_gamepad_reading_unmarshal(vgp_data_exchange_gamepad_rea
 		x |= (uint_fast32_t) *p++ << 8;
 		x |= (uint_fast32_t) *p++;
 		memcpy(&o->right_thumbstick_y, &x, 4);
+#endif
+		header = *p++;
+	}
+
+	if (header == 8) {
+		if (p+4 >= end) {
+			errno = enderr;
+			return 0;
+		}
+#ifdef COLFER_ENDIAN
+		memcpy(&o->pitch, p, 4);
+		p += 4;
+#else
+		uint_fast32_t x = *p++;
+		x <<= 24;
+		x |= (uint_fast32_t) *p++ << 16;
+		x |= (uint_fast32_t) *p++ << 8;
+		x |= (uint_fast32_t) *p++;
+		memcpy(&o->pitch, &x, 4);
+#endif
+		header = *p++;
+	}
+
+	if (header == 9) {
+		if (p+4 >= end) {
+			errno = enderr;
+			return 0;
+		}
+#ifdef COLFER_ENDIAN
+		memcpy(&o->roll, p, 4);
+		p += 4;
+#else
+		uint_fast32_t x = *p++;
+		x <<= 24;
+		x |= (uint_fast32_t) *p++ << 16;
+		x |= (uint_fast32_t) *p++ << 8;
+		x |= (uint_fast32_t) *p++;
+		memcpy(&o->roll, &x, 4);
 #endif
 		header = *p++;
 	}

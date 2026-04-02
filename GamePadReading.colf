@@ -2,8 +2,13 @@ package VGP_Data_Exchange
 
 // Inspired by the GamepadReading struct in the Windows API.
 // https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.gamepadreading
+//
 // The Thumbstick values are actual circular positions in the range -1.0 to 1.0
 // It means 0.7, 0.7 is a corner, while 1.0, 1.0 is invalid.
+//
+// Pitch and Roll are inspired from
+// https://learn.microsoft.com/en-us/uwp/api/windows.gaming.input.flightstickreading and
+// https://developer.android.com/reference/android/hardware/SensorManager#getOrientation(float[],%20float[])
 type GamepadReading struct {
 	ButtonsUp uint32
 	ButtonsDown uint32
@@ -13,4 +18,8 @@ type GamepadReading struct {
 	LeftThumbstickY float32
 	RightThumbstickX float32
 	RightThumbstickY float32
+	// value is in Radian range [-PI/2,PI/2]
+	Pitch float32
+	// value is in Radian range [-PI,PI]
+	Roll float32
 }
