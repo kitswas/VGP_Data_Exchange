@@ -17,3 +17,13 @@ colf -b C C
 ```bash
 colf -p io.github.kitswas Java
 ```
+
+## Formatting
+
+Hand-written C sources are formatted with [clang-format](https://clang.llvm.org/docs/ClangFormat.html):
+
+```bash
+clang-format -i *.c *.h # Or --dry-run --Werror to check only
+```
+
+The generated `Colfer.c`/`Colfer.h` are excluded via `.clang-format-ignore`.
